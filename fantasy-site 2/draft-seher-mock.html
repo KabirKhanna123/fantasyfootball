@@ -388,7 +388,7 @@
 </style>
 </head>
 <body class="locked">
-<div class="access-gate">
+<div class="access-gate" id="accessGate">
   <div class="access-box">
     <div class="access-title">🔒 Draft Assistant</div>
     <div class="access-sub">Kabir &amp; Seher only — enter the access code to continue.</div>
@@ -400,19 +400,28 @@
 <script>
 (function() {
   var ACCESS_CODE = "DHOOM26"; // change this to whatever code you want to share with Seher
+  function unlock() {
+    document.body.classList.remove('locked');
+    // The gate is a fixed, full-screen, max-z-index overlay — removing the
+    // "locked" class only reveals the rest of the page underneath it. The
+    // overlay itself has to be hidden too, or it just sits there forever on
+    // top of everything and unlocking looks like it did nothing.
+    var gate = document.getElementById('accessGate');
+    if (gate) gate.style.display = 'none';
+  }
   // localStorage can throw on some browsers for file:// pages (Safari private
   // mode, some Chrome restricted-storage configs) — isolate every access so
   // a storage failure never stops the unlock button from working.
   try {
     if (localStorage.getItem('dhoom_access') === ACCESS_CODE) {
-      document.body.classList.remove('locked');
+      unlock();
     }
   } catch (e) {}
   function tryUnlock() {
     var val = document.getElementById('accessCodeInput').value;
     if (val === ACCESS_CODE) {
       try { localStorage.setItem('dhoom_access', ACCESS_CODE); } catch (e) {}
-      document.body.classList.remove('locked');
+      unlock();
     } else {
       document.getElementById('accessError').style.display = 'block';
     }
